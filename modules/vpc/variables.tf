@@ -25,11 +25,6 @@ variable "region" {
 }
 
 #vpc
-variable "vpc_name" {
-  type        = string
-  description = "k8s name"
-}
-
 variable "ip_range" {
   type        = string
   description = "IP range"

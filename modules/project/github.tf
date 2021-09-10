@@ -6,6 +6,9 @@ resource "github_repository" "repository" {
   auto_init   = "true"
   lifecycle {
     prevent_destroy = false
+    ignore_changes = [
+      etag
+    ]
   }
 }
 

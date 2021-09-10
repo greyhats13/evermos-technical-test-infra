@@ -8,10 +8,11 @@ terraform {
 }
 
 module "vpc" {
-  source       = "../../modules/vpc"
-  region       = "sgp1"
-  env          = "dev"
-  unit         = "evm"
-  code         = "vpc"
-  feature      = "network"
+  source   = "../../modules/vpc"
+  region   = "sgp1"
+  env      = "dev"
+  unit     = "evm"
+  code     = "vpc"
+  feature  = "network"
+  ip_range = "10.0.0.0/16"
 }

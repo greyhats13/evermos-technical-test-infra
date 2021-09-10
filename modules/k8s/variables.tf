@@ -15,7 +15,7 @@ variable "code" {
 }
 
 variable "feature" {
-  type        = string
+  type        = list(string)
   description = "the name of DO services feature"
 }
 
@@ -24,13 +24,43 @@ variable "region" {
   description = "DO region"
 }
 
-#vpc
-variable "vpc_name" {
+#k8s
+variable "version_prefix" {
   type        = string
-  description = "k8s name"
+  description = "k8s version prefix"
 }
 
-variable "ip_range" {
+variable "node_type" {
   type        = string
-  description = "IP range"
+  description = "k8s node type"
+}
+
+variable "node_count" {
+  type        = number
+  description = "k8s node count"
+}
+
+variable "auto_scale" {
+  type        = bool
+  description = "k8s autoscale"
+}
+
+variable "min_nodes" {
+  type        = number
+  description = "k8s min nodes"
+}
+
+variable "max_nodes" {
+  type        = number
+  description = "k8s max nodes"
+}
+
+variable "node_labels" {
+  type        = map(any)
+  description = "k8s node labels"
+}
+
+variable "node_taint" {
+  type        = map(any)
+  description = "k8s node taints"
 }
