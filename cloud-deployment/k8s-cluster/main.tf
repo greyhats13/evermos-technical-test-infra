@@ -7,8 +7,8 @@ terraform {
   }
 }
 
-module "k8s" {
-  source         = "../../modules/k8s"
+module "k8s_cluster" {
+  source         = "../../modules/k8s-cluster"
   region         = "sgp1"
   env            = "dev"
   unit           = "evm"

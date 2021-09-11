@@ -26,13 +26,18 @@ provider "helm" {
   }
 }
 
+resource "kubernetes_namespace" "namespace" {
+  metadata {
+    name = var.feature
+  }
+}
+
 resource "helm_release" "helm" {
   name             = "${var.unit}-${var.code}-${var.feature}-${var.env}"
   repository       = var.repository
   chart            = var.chart
   values           = length(var.values) > 0 ? var.values : []
-  namespace        = var.feature
-  create_namespace = true
+  namespace        = kubernetes_namespace.namespace.metadata.0.name
 
   dynamic "set" {
     for_each = length(var.helm_sets) > 0 ? {

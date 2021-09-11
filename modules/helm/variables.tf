@@ -41,5 +41,5 @@ variable "values" {
 
 variable "helm_sets" {
   type        = list(object({ name : string, value : any }))
-  description = "(optional) describe your variable"
+  description = "list of helm set"
 }

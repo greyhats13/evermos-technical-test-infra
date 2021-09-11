@@ -15,8 +15,8 @@ variable "code" {
 }
 
 variable "feature" {
-  type        = list(string)
-  description = "the name of DO services feature"
+  type        = string
+  description = "service domain feature to use"
 }
 
 variable "region" {
@@ -24,38 +24,7 @@ variable "region" {
   description = "DO region"
 }
 
-#k8s
-variable "version_prefix" {
+variable "manifest" {
   type        = string
-  description = "k8s version prefix"
-}
-
-variable "node_type" {
-  type        = string
-  description = "k8s node type"
-}
-
-variable "auto_scale" {
-  type        = bool
-  description = "k8s autoscale"
-}
-
-variable "min_nodes" {
-  type        = number
-  description = "k8s min nodes"
-}
-
-variable "max_nodes" {
-  type        = number
-  description = "k8s max nodes"
-}
-
-variable "node_labels" {
-  type        = map(any)
-  description = "k8s node labels"
-}
-
-variable "node_taint" {
-  type        = map(any)
-  description = "k8s node taints"
+  description = "k8s manifest"
 }

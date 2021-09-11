@@ -14,10 +14,14 @@ module "helm" {
   unit       = "evm"
   code       = "toolchain"
   feature    = "cert-manager"
-  repository = "https://charts.jetstack.io/jetstack"
+  repository = "https://charts.jetstack.io"
   chart      = "cert-manager"
   values     = []
   helm_sets = [
+    {
+      name  = "installCRDs"
+      value = "true"
+    },
     {
       name  = "controller.nodeSelector.service"
       value = "backend"
