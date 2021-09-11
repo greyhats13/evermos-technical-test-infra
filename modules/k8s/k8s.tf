@@ -38,8 +38,10 @@ resource "digitalocean_kubernetes_cluster" "cluster" {
   node_pool {
     name       = "${var.unit}-${var.code}-${var.feature[1]}-${var.env}"
     size       = var.node_type
-    node_count = var.node_count
-    labels = var.node_labels
+    auto_scale = var.auto_scale
+    min_nodes  = var.min_nodes
+    max_nodes  = var.max_nodes
+    labels     = var.node_labels
     dynamic "taint" {
       for_each = length(var.node_taint) > 0 ? var.node_taint : {}
       content {
@@ -49,16 +51,21 @@ resource "digitalocean_kubernetes_cluster" "cluster" {
       }
     }
   }
-  tags = [var.unit, var.code, var.feature[0], var.env]
+  tags     = [var.unit, var.code, var.feature[0], var.env]
   vpc_uuid = data.terraform_remote_state.vpc.outputs.do_vpc_id
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
 }
 
-resource "digitalocean_kubernetes_node_pool" "autoscale-pool-01" {
-  cluster_id = digitalocean_kubernetes_cluster.cluster.id
-  name       = "${var.unit}-${var.code}-${var.feature[1]}-${var.env}-autoscale"
-  size       = var.node_type
-  auto_scale = var.auto_scale
-  min_nodes  = var.min_nodes
-  max_nodes  = var.max_nodes
-  labels     = var.node_labels
-}
+# resource "digitalocean_kubernetes_node_pool" "autoscale-pool-01" {
+#   cluster_id = digitalocean_kubernetes_cluster.cluster.id
+#   name       = "${var.unit}-${var.code}-${var.feature[1]}-${var.env}-autoscale"
+#   size       = var.node_type
+#   auto_scale = var.auto_scale
+#   min_nodes  = var.min_nodes
+#   max_nodes  = var.max_nodes
+#   labels     = var.node_labels
+# }

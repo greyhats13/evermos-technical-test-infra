@@ -35,11 +35,6 @@ variable "node_type" {
   description = "k8s node type"
 }
 
-variable "node_count" {
-  type        = number
-  description = "k8s node count"
-}
-
 variable "auto_scale" {
   type        = bool
   description = "k8s autoscale"
