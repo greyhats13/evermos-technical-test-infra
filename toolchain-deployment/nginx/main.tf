@@ -25,10 +25,6 @@ module "helm" {
     {
       name  = "controller.nodeSelector.service"
       value = "backend"
-    },
-    {
-      name  = "controller.ingressClass"
-      value = "alpha"
     }
   ]
 }
