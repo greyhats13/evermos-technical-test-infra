@@ -36,7 +36,7 @@
   <triggers>
     <com.igalg.jenkins.plugins.mswt.trigger.ComputedFolderWebHookTrigger plugin="multibranch-scan-webhook-trigger@1.0.9">
       <spec></spec>
-      <token>{{ .Parameters.code }}-{{ .Parameters.feature }}</token>
+      <token>{{ .Parameters.unit }}-{{ .Parameters.code }}-{{ .Parameters.feature }}-{{ .Parameters.env }}</token>
     </com.igalg.jenkins.plugins.mswt.trigger.ComputedFolderWebHookTrigger>
   </triggers>
   <disabled>false</disabled>
@@ -47,8 +47,8 @@
           <apiUri>https://api.github.com</apiUri>
           <credentialsId>{{ .Parameters.credentials_id }}</credentialsId>
           <repoOwner>{{ .Parameters.github_username }}</repoOwner>
-          <repository>{{ .Parameters.repository }}</repository>
-          <repositoryUrl>https://github.com/{{ .Parameters.github_username }}/{{ .Parameters.repository }}.git</repositoryUrl>
+          <repository>{{ .Parameters.github_repository }}</repository>
+          <repositoryUrl>https://github.com/{{ .Parameters.github_username }}/{{ .Parameters.github_repository }}.git</repositoryUrl>
         </source>
         <strategy class="jenkins.branch.DefaultBranchPropertyStrategy">
           <properties class="empty-list"/>

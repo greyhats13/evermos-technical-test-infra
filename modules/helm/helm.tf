@@ -26,18 +26,14 @@ provider "helm" {
   }
 }
 
-resource "kubernetes_namespace" "namespace" {
-  metadata {
-    name = var.feature
-  }
-}
-
 resource "helm_release" "helm" {
-  name       = "${var.unit}-${var.code}-${var.feature}-${var.env}"
+  name       = !var.no_env ? "${var.unit}-${var.code}-${var.feature}-${var.env}":"${var.unit}-${var.code}-${var.feature}"
   repository = var.repository
   chart      = var.chart
   values     = length(var.values) > 0 ? var.values : []
-  namespace  = kubernetes_namespace.namespace.metadata.0.name
+  namespace  = var.override_namespace != null ? var.override_namespace: (
+    var.env == "prd" ? "evermos":var.env
+  )
   lint       = true
   dynamic "set" {
     for_each = length(var.helm_sets) > 0 ? {

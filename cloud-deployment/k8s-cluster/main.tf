@@ -7,6 +7,11 @@ terraform {
   }
 }
 
+#Initial Setup
+variable "do_token" {
+  #the value is assigned from tfvars
+}
+
 module "k8s_cluster" {
   source         = "../../modules/k8s-cluster"
   region         = "sgp1"
@@ -14,6 +19,7 @@ module "k8s_cluster" {
   unit           = "evm"
   code           = "k8s"
   feature        = ["cluster", "pool"]
+  do_token       = var.do_token
   version_prefix = "1.21."
   node_type      = "s-2vcpu-2gb"
   auto_scale     = true
@@ -24,4 +30,5 @@ module "k8s_cluster" {
     priority = "high"
   }
   node_taint = {}
+  namespaces = [ "dev", "stg", "evermos", "ingress", "cicd", "database" ]
 }

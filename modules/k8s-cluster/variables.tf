@@ -25,6 +25,10 @@ variable "region" {
 }
 
 #k8s
+variable "do_token" {
+  type        = string
+  description = "DO token"
+}
 variable "version_prefix" {
   type        = string
   description = "k8s version prefix"
@@ -58,4 +62,9 @@ variable "node_labels" {
 variable "node_taint" {
   type        = map(any)
   description = "k8s node taints"
+}
+
+variable "namespaces" {
+  type        = list(string)
+  description = "List of kubernetes namespaces"
 }

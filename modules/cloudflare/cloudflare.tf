@@ -15,7 +15,7 @@ data "terraform_remote_state" "nginx" {
 
 resource "cloudflare_record" "record" {
   zone_id         = var.zone_id
-  name            = "${var.feature}.${var.code}.${var.env}"
+  name            = var.code != "toolchain" ? "${var.feature}.${var.code}.${var.env}":"${var.feature}.${var.code}"
   value           = data.terraform_remote_state.nginx.outputs.do_helm_nginx_loadbalancer_ip
   type            = var.type
   ttl             = var.ttl

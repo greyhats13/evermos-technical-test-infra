@@ -2,29 +2,39 @@
 variable "unit" {
   type        = string
   description = "business unit code"
-  default     = "evm"
 }
 
 variable "env" {
   type        = string
   description = "stage environment where the service or cloud resource will be deployed"
-  default     = "dev"
 }
 
 variable "code" {
   type        = string
   description = "service domain code to use"
-  default     = "go"
 }
 
 variable "feature" {
   type        = string
   description = "service domain feature to use"
-  default     = "demo"
 }
 
-variable "region" {
+variable "github_repository" {
   type        = string
-  description = "DO region"
-  default     = "sgp1"
+  description = "Github repository name"
+}
+
+variable "github_username" {
+  type        = string
+  description = "github username/owner"
+}
+
+variable "jenkins_secrets" {
+  type        = map(string)
+  description = "jenkins username and password"
+}
+
+variable "credentials_id" {
+  type        = list(string)
+  description = "List of jenkins credentials_id"
 }

@@ -20,6 +20,18 @@ module "helm" {
   helm_sets = [
     {
       name  = "controller.replicaCount"
+      value = 1
+    },
+    {
+      name  = "controller.autoscaling.enabled"
+      value = true
+    },
+    {
+      name  = "controller.autoscaling.minReplicas"
+      value = 1
+    },
+    {
+      name  = "controller.autoscaling.maxReplicas"
       value = 2
     },
     {
@@ -27,4 +39,6 @@ module "helm" {
       value = "backend"
     }
   ]
+  override_namespace = "ingress"
+  no_env             = true
 }

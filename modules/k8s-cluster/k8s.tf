@@ -1,3 +1,7 @@
+provider "digitalocean" {
+  token = var.do_token
+}
+
 data "terraform_remote_state" "project" {
   backend = "s3"
   config = {
@@ -69,3 +73,21 @@ resource "digitalocean_kubernetes_cluster" "cluster" {
 #   max_nodes  = var.max_nodes
 #   labels     = var.node_labels
 # }
+
+provider "kubernetes" {
+  host  = digitalocean_kubernetes_cluster.cluster.endpoint
+  token = digitalocean_kubernetes_cluster.cluster.kube_config.0.token
+  cluster_ca_certificate = base64decode(
+    digitalocean_kubernetes_cluster.cluster.kube_config.0.cluster_ca_certificate
+  )
+  experiments {
+    manifest_resource = true
+  }
+}
+
+resource "kubernetes_namespace" "namespaces" {
+  count = length(var.namespaces)
+  metadata {
+    name = element(var.namespaces, count.index)
+  }
+}

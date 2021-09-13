@@ -50,6 +50,16 @@ variable "jenkins_secrets" {
   sensitive = true
 }
 
+variable "github_secrets" {
+  #Jenkins secrets and the value is assigned on tfvars
+  sensitive = true
+}
+
+variable "docker_secrets" {
+  #Jenkins secrets and the value is assigned on tfvars
+  sensitive = true
+}
+
 variable "repository" {
   default = "https://charts.jenkins.io"
 }

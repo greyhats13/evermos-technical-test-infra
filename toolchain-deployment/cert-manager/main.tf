@@ -27,4 +27,6 @@ module "helm" {
       value = "backend"
     }
   ]
+  override_namespace = "kube-system"
+  no_env             = true
 }

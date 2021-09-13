@@ -7,6 +7,7 @@ variable "unit" {
 variable "env" {
   type        = string
   description = "stage environment where the service or cloud resource will be deployed"
+  default     = null
 }
 
 variable "code" {
@@ -42,4 +43,16 @@ variable "values" {
 variable "helm_sets" {
   type        = list(object({ name : string, value : any }))
   description = "list of helm set"
+}
+
+variable "override_namespace" {
+  type        = string
+  description = "Override default namespace"
+  default     = null
+}
+
+variable "no_env" {
+  type        = bool
+  description = "Remove env on naming standard"
+  default     = false
 }

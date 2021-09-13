@@ -25,6 +25,7 @@ variable "cloudflare_secrets" {
   type        = map(string)
   description = "Cloudflare secrets"
 }
+
 variable "zone_id" {
   type        = string
   description = "cloudflare zone id"
