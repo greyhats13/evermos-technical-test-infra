@@ -26,7 +26,7 @@ module "helm" {
   helm_sets = [
     {
       name  = "auth.rootPassword"
-      value = var.redis_secrets["rootPassword"]
+      value = var.redis_secrets["redisPassword"]
     },
     {
       name  = "replica.replicaCount"
