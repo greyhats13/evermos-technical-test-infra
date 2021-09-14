@@ -1,12 +1,13 @@
 # Evermos Terraform : Everything as a Code
 Terraform is no longer limited to Infrasructure as a Code. Thanks to provider ecosystem.
 
-All Evermos technical test infrastructure requirment is deployed in public Cloud Digital Ocean.
-Terraform structure contains of modules and deployment. Deployment will source on the module to provision their resource such as service deployment
+All infrastructure requirement for Evermos technical test is deployed using Terraform to DigitalOCean.
+Terraform structure contains of modules and deployments. Deployment will source on the module to provision their resource such as service deployment
 will invoke Cloudflare, github, and jenkins module.
-Deployment can invoke include more module. All the resource is deployed using Terraform including Kubernetes and Helm deployment.
-Deployment is consist of 3 deployment type:
-- Cloud deployment: to provision resource on the cloud using Terraform DigitalOcean Provider.
+Deployment can invoke include more module. All the resource is deployed using Terraform including Kubernetes and Helm deployment and follow the devops naming standard.
+
+Terraform Deployment is consist of 3 deployment type:
+- Cloud deployment: to provision resource on the cloud using Terraform DigitalOcean Provider such as K8s cluster, VPC, Digital Ocean project.
 ```terraform
 provider "digitalocean" {
   token = var.do_token
@@ -74,16 +75,192 @@ resource "digitalocean_kubernetes_cluster" "cluster" {
   }
 }
 ```
-- Toolchain deployment: to deploy required tools for services using Terraform Helm Provider.
+- Toolchain deployment: to deploy required tools for services using Terraform Helm Provider such as Ingress-nginx, jenkins, cert-manager, and metrics server.
+
 - Database deployment: mysql and redis deployment using Terraform Helm provider and deployed to Kubernetes cluster as Statefulsets.
-- Service deployment: provision github, jenkins job, and cloudflare for CI/CD deployment requirement.
+
+Sample Helm Deployment for Redis:
+
+Helm Module:
+```terraform
+data "terraform_remote_state" "k8s" {
+  backend = "s3"
+  config = {
+    bucket  = "greyhats13-tfstate"
+    key     = "${var.unit}-k8s-cluster-${var.env}.tfstate"
+    region  = "ap-southeast-1"
+    profile = "${var.unit}-${var.env}"
+  }
+}
+
+provider "helm" {
+  kubernetes {
+    host  = data.terraform_remote_state.k8s.outputs.do_k8s_endpoint
+    token = data.terraform_remote_state.k8s.outputs.do_k8s_kubeconfig0.token
+    cluster_ca_certificate = base64decode(
+      data.terraform_remote_state.k8s.outputs.do_k8s_kubeconfig0.cluster_ca_certificate
+    )
+  }
+}
+
+resource "helm_release" "helm" {
+  name       = !var.no_env ? "${var.unit}-${var.code}-${var.feature}-${var.env}":"${var.unit}-${var.code}-${var.feature}"
+  repository = var.repository
+  chart      = var.chart
+  values     = length(var.values) > 0 ? var.values : []
+  namespace  = var.override_namespace != null ? var.override_namespace: (
+    var.env == "prd" ? "evermos":var.env
+  )
+  lint       = true
+  dynamic "set" {
+    for_each = length(var.helm_sets) > 0 ? {
+      for helm_key, helm_set in var.helm_sets : helm_key => helm_set
+    } : {}
+    content {
+      name  = set.value.name
+      value = set.value.value
+    }
+  }
+}
+```
+Sample Redis Root Module:
+```terraform
+variable "redis_secrets" {
+  type = map(string)
+  #value is assign on tfvars
+  sensitive = true
+}
+
+module "helm" {
+  source     = "../../modules/helm"
+  region     = "sgp1"
+  env        = "dev"
+  unit       = "evm"
+  code       = "database"
+  feature    = "redis"
+  repository = "https://charts.bitnami.com/bitnami"
+  chart      = "redis"
+  values     = []
+  helm_sets = [
+    {
+      name  = "auth.rootPassword"
+      value = var.redis_secrets["redisPassword"]
+    },
+    {
+      name  = "replica.replicaCount"
+      value = "2"
+    },
+    {
+      name  = "primary.persistence.size"
+      value = "2Gi"
+    },
+    {
+      name  = "secondary.persistence.size"
+      value = "2Gi"
+    },
+        {
+      name  = "master.nodeSelector.service"
+      value = "backend"
+    },
+    {
+      name  = "replica.nodeSelector.service"
+      value = "backend"
+    }
+  ]
+  override_namespace = "database"
+  no_env             = true
+}
+```
+- Service deployment: to provision github, jenkins job, and cloudflare for CI/CD for service deployment in one flows:
+Module
+```
+resource "github_repository" "repository" {
+  count       = var.env == "dev" ? 1 : 0
+  name        = "${var.unit}-${var.code}-${var.feature}"
+  description = "Repository for ${var.unit}-${var.code}-${var.feature} service"
+  visibility  = "public"
+  auto_init   = "true"
+  lifecycle {
+    prevent_destroy = false
+    ignore_changes = [
+      etag
+    ]
+  }
+}
+
+resource "github_repository_webhook" "webhook" {
+  repository = var.env == "dev" ? github_repository.repository[0].name : "${var.unit}-${var.code}-${var.feature}"
+
+  configuration {
+    url          = "https://${data.terraform_remote_state.jenkins.outputs.jenkins_cloudflare_endpoint}/multibranch-webhook-trigger/invoke?token=${var.unit}-${var.code}-${var.feature}-${var.env}"
+    content_type = "json"
+    insecure_ssl = false
+  }
+
+  active = true
+
+  events = ["push"]
+  depends_on = [
+    github_repository.repository
+  ]
+}
+
+resource "jenkins_job" "job" {
+  name     = "${var.unit}-${var.code}-${var.feature}-${var.env}"
+  folder   = jenkins_folder.folder.id
+  template = file("${path.module}/job.xml")
+
+  parameters = {
+    description       = "Job for ${var.unit}-${var.code}-${var.feature}-${var.env}"
+    unit              = var.unit
+    code              = var.code
+    feature           = var.feature
+    env               = var.env
+    credentials_id    = var.credentials_id[0]
+    github_username   = var.github_username
+    github_repository = var.github_repository
+  }
+}
+```
+Root Module:
+```terraform
+module "cloudflare" {
+  source             = "../../modules/cloudflare"
+  env                = var.env
+  unit               = var.unit
+  code               = var.code
+  feature            = var.feature
+  cloudflare_secrets = var.cloudflare_secrets
+  zone_id            = var.cloudflare_secrets["zone_id"]
+  type               = var.type
+  ttl                = var.ttl
+  proxied            = var.proxied
+  allow_overwrite    = var.allow_overwrite
+}
+
+module "github" {
+  source         = "../../modules/github"
+  env            = var.env
+  unit           = var.unit
+  code           = var.code
+  feature        = var.feature
+  github_secrets = var.github_secrets
+}
+
+module "jenkins" {
+  source            = "../../modules/jenkins"
+  env               = var.env
+  unit              = var.unit
+  code              = var.code
+  feature           = var.feature
+  jenkins_secrets   = var.jenkins_secrets
+  github_username   = var.github_secrets["owner"]
+  github_repository = module.github.github_repository
+  credentials_id    = var.credentials_id
+}
+```
 
 
-Cloud deployment::
-K8s cluster, VPC, Digital Ocean project.
-
-Toolchain Deployment:
-Ingress-nginx, jenkins, cert-manager, and metrics server.
 
 Database deployment :
 MySQL, Redis as Stateful Sets.
