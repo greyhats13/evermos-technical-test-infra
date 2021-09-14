@@ -173,7 +173,7 @@ module "helm" {
 ```
 - Service deployment: to provision github, jenkins job, and cloudflare for CI/CD for service deployment in one flows:
 Module
-```
+```terraform
 resource "github_repository" "repository" {
   count       = var.env == "dev" ? 1 : 0
   name        = "${var.unit}-${var.code}-${var.feature}"
@@ -222,6 +222,7 @@ resource "jenkins_job" "job" {
   }
 }
 ```
+
 Root Module:
 ```terraform
 module "cloudflare" {
@@ -261,14 +262,6 @@ module "jenkins" {
 ```
 
 
-
-Database deployment :
-MySQL, Redis as Stateful Sets.
-
-Service deployment:
-Cloudflare record (service endpoint), Github repository and webhook, Jenkins folder, and jobs.
-
-
 # Evermos CI/CD:
 After All cloud resources, toolchain, database(MySQL, REdis), and CI/CD is setup by Terraform. The CI/CD is using Feature Branch workflow. 
 - Push event will trigger dev pipeline
@@ -285,6 +278,39 @@ def scm = checkout([$class: 'GitSCM', branches: [[name: runBranch]], userRemoteC
 ```
 2. Build
 Jenkins will build the services as docker container. Jenkins will build the container based what is defined on Dockerfile.
+Sample Golang Dockerfile:
+```dockerfile
+FROM golang:1.15.2-alpine3.12 AS builder
+
+RUN apk update && apk add --no-cache git
+
+WORKDIR $GOPATH/src/evm-core-test/
+
+COPY . .
+
+RUN GOOS=linux GOARCH=amd64 go build -o /go/bin/evm-core-test
+
+FROM alpine:3.12
+
+RUN apk add --no-cache tzdata
+
+COPY --from=builder /go/bin/evm-core-test /go/bin/evm-core-test
+
+ENTRYPOINT ["/go/bin/evm-core-test"]
+```
+Sample Python Dockerfile:
+```Dockerfile
+FROM python:3.4-alpine
+RUN apk add --no-cache bash
+COPY . /app
+WORKDIR /app
+RUN pip3 install -r requirements.txt
+EXPOSE 5000
+RUN chmod +x docker-entrypoint.sh
+ENTRYPOINT ["./docker-entrypoint.sh"]
+CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
+```
+Jenkins build imlementation:
 ```bash
 def dockerBuild(Map args) {
     sh "docker build -t ${args.docker_username}/${args.service_name}:${args.build_number} ."
@@ -329,7 +355,7 @@ c. After all the check, we performed the Helm deployment.
 sh "helm -n ${namespace} upgrade --install ${service_name} -f ${helm_values} . --recreate-pods"
 ```
 
-# Helm Charts for services, Ingress, SSL
+# Helm Charts for Services, Ingress, SSL
 Helm chart really make our life easier. We didn't have to perform
 ```bash
 helm upgrade --install -f values.yaml . -n <namespace>
@@ -344,7 +370,6 @@ My sample services ingres also using TLS/SSL from LetsEncrypt cert-maanger by as
 
 5. Helm chart for deploying Redis and MySQL as Stateful Sets.
 Most of data layer deployment need persistency such as Redis, MySQL, MongoDB, Elasticsearch (ECK). I deployed Redis as stateful sets to the kubernetes cluster.
-
 
 
 
