@@ -7,6 +7,73 @@ will invoke Cloudflare, github, and jenkins module.
 Deployment can invoke include more module. All the resource is deployed using Terraform including Kubernetes and Helm deployment.
 Deployment is consist of 3 deployment type:
 - Cloud deployment: to provision resource on the cloud using Terraform DigitalOcean Provider.
+```terraform
+provider "digitalocean" {
+  token = var.do_token
+}
+
+data "terraform_remote_state" "project" {
+  backend = "s3"
+  config = {
+    bucket  = "greyhats13-tfstate"
+    key     = "${var.unit}-project-${var.env}.tfstate"
+    region  = "ap-southeast-1"
+    profile = "${var.unit}-${var.env}"
+  }
+}
+
+data "terraform_remote_state" "vpc" {
+  backend = "s3"
+  config = {
+    bucket  = "greyhats13-tfstate"
+    key     = "${var.unit}-vpc-network-${var.env}.tfstate"
+    region  = "ap-southeast-1"
+    profile = "${var.unit}-${var.env}"
+  }
+}
+
+#assign k8s cluster to project
+resource "digitalocean_project_resources" "project_resource" {
+  project = data.terraform_remote_state.project.outputs.do_project_id
+  resources = [
+    digitalocean_kubernetes_cluster.cluster.urn
+  ]
+}
+
+data "digitalocean_kubernetes_versions" "versions" {
+  version_prefix = var.version_prefix
+}
+
+resource "digitalocean_kubernetes_cluster" "cluster" {
+  name    = "${var.unit}-${var.code}-${var.feature[0]}-${var.env}"
+  region  = var.region
+  version = data.digitalocean_kubernetes_versions.versions.latest_version
+
+  node_pool {
+    name       = "${var.unit}-${var.code}-${var.feature[1]}-${var.env}"
+    size       = var.node_type
+    auto_scale = var.auto_scale
+    min_nodes  = var.min_nodes
+    max_nodes  = var.max_nodes
+    labels     = var.node_labels
+    dynamic "taint" {
+      for_each = length(var.node_taint) > 0 ? var.node_taint : {}
+      content {
+        key    = taint.value["key"]
+        value  = taint.value["value"]
+        effect = taint.value["effect"]
+      }
+    }
+  }
+  tags     = [var.unit, var.code, var.feature[0], var.env]
+  vpc_uuid = data.terraform_remote_state.vpc.outputs.do_vpc_id
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
+}
+```
 - Toolchain deployment: to deploy required tools for services using Terraform Helm Provider.
 - Database deployment: mysql and redis deployment using Terraform Helm provider and deployed to Kubernetes cluster as Statefulsets.
 - Service deployment: provision github, jenkins job, and cloudflare for CI/CD deployment requirement.
@@ -97,6 +164,10 @@ For this technical test, I have customized the helm chart for service deployment
 I exposed my sample services to the internet using Ingress Nginx. Ingress Nginx is using DO load balancer. All of the services ingress is assigned to Nginx ingress class on the annotation, and exposed their services to the internet.
 3. SSL/TLS
 My sample services ingres also using TLS/SSL from LetsEncrypt cert-maanger by assigning the cluster issuer on the ingress annotation.
+
+5. Helm chart for deploying Redis and MySQL as Stateful Sets.
+Most of data layer deployment need persistency such as Redis, MySQL, MongoDB, Elasticsearch (ECK). I deployed Redis as stateful sets to the kubernetes cluster.
+
 
 
 
