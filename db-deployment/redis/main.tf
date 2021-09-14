@@ -30,7 +30,7 @@ module "helm" {
     },
     {
       name  = "replica.replicaCount"
-      value = "1"
+      value = "2"
     },
     {
       name  = "primary.persistence.size"
@@ -41,11 +41,11 @@ module "helm" {
       value = "2Gi"
     },
         {
-      name  = "primary.nodeSelector.service"
+      name  = "master.nodeSelector.service"
       value = "backend"
     },
     {
-      name  = "secondary.nodeSelector.service"
+      name  = "replica.nodeSelector.service"
       value = "backend"
     }
   ]
