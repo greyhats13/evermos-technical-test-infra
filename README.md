@@ -2,7 +2,11 @@
 1. Terraform : https://github.com/greyhats13/evm-do-infra
 2. Sample service deployment:
 - https://github.com/greyhats13/evm-do-infra -> https://api.core.dev.blast.co.id/ (Flask Rest)
+  ref: Public Repo: https://github.com/banyucenter/belajarflask.git
+
 - https://github.com/greyhats13/evm-core-test -> https://test.core.dev.blast.co.id/ (Go Rest)
+  no ref, I code myself.
+
 
 # Evermos Terraform : Everything as a Code
 Terraform is no longer limited to Infrasructure as a Code. Thanks to provider ecosystem.
