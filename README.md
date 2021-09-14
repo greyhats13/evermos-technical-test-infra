@@ -1,3 +1,9 @@
+# References:
+1. Terraform : https://github.com/greyhats13/evm-do-infra
+2. Sample service deployment:
+- https://github.com/greyhats13/evm-do-infra -> https://api.core.dev.blast.co.id/ (Flask Rest)
+- https://github.com/greyhats13/evm-core-test -> https://test.core.dev.blast.co.id/ (Go Rest)
+
 # Evermos Terraform : Everything as a Code
 Terraform is no longer limited to Infrasructure as a Code. Thanks to provider ecosystem.
 
@@ -371,5 +377,7 @@ My sample services ingres also using TLS/SSL from LetsEncrypt cert-maanger by as
 5. Helm chart for deploying Redis and MySQL as Stateful Sets.
 Most of data layer deployment need persistency such as Redis, MySQL, MongoDB, Elasticsearch (ECK). I deployed Redis as stateful sets to the kubernetes cluster.
 
-
-
+# Terraform CI/CD with Atlantis:
+Configuring Terraform to automatically plan and apply after delivery team (developer) request for new services as belows.
+1. The delivery create service deployment from Terraform code example and adjust with their service name and specification.
+2. Delivery team then will 
