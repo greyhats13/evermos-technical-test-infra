@@ -8,7 +8,7 @@ Deployment can invoke include more module. All the resource is deployed using Te
 Deployment is consist of 3 deployment type:
 - Cloud deployment: to provision resource on the cloud using Terraform DigitalOcean Provider.
 - Toolchain deployment: to deploy required tools for services using Terraform Helm Provider.
-- Database deployment: mysql and redis deployment using Terraform Helm provider and deployed to Kubernetes as Statefulsets.
+- Database deployment: mysql and redis deployment using Terraform Helm provider and deployed to Kubernetes cluster as Statefulsets.
 - Service deployment: provision github, jenkins job, and cloudflare for CI/CD deployment requirement.
 
 
@@ -30,7 +30,7 @@ After All cloud resources, toolchain, database(MySQL, REdis), and CI/CD is setup
 - Push event will trigger dev pipeline
 - Pull request to Main(master) will trigger Staging pipeline
 - Release tag will trigger production pipeline.
-It is not 100% implemented due to limited times. So, most of the versioning strategy is a part of Feature branch formality.
+It is not 100% implemented due to limited times. So, most of the versioning strategy is a part of feature branch formality.
 
 CI/CD is setup as pipeline as a code in Jenkinsfile. It contains three stages:
 1. Source(Checkout)
@@ -85,4 +85,18 @@ c. After all the check, we performed the Helm deployment.
 sh "helm -n ${namespace} upgrade --install ${service_name} -f ${helm_values} . --recreate-pods"
 ```
 
-# Evermos Terraform : Everything as a Code
+# Helm Charts for services, Ingress, SSL
+Helm chart really make our life easier. We didn't have to perform
+```bash
+helm upgrade --install -f values.yaml . -n <namespace>
+```
+manually. All the kubernetes deployment in this assigment is performed using Helm chart and many of them is performed using Terraform or Jenkins CI/CD.
+1. Service Deployment (microservices)
+For this technical test, I have customized the helm chart for service deployment from ```bash helm create sampleservice``` and add configmap and secrets to the helm templates then associated them with environment variable on deployment (envFrom).
+2. Ingress-Nginx
+I exposed my sample services to the internet using Ingress Nginx. Ingress Nginx is using DO load balancer. All of the services ingress is assigned to Nginx ingress class on the annotation, and exposed their services to the internet.
+3. SSL/TLS
+My sample services ingres also using TLS/SSL from LetsEncrypt cert-maanger by assigning the cluster issuer on the ingress annotation.
+
+
+
