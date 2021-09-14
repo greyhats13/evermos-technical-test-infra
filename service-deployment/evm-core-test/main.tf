@@ -2,7 +2,7 @@ terraform {
   backend "s3" {
     bucket  = "greyhats13-tfstate"
     region  = "ap-southeast-1"
-    key     = "evm-core-api-dev.tfstate"
+    key     = "evm-core-test-dev.tfstate"
     profile = "evm-dev"
   }
 }

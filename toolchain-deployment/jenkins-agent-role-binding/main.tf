@@ -2,7 +2,7 @@ terraform {
   backend "s3" {
     bucket  = "greyhats13-tfstate"
     region  = "ap-southeast-1"
-    key     = "evm-toolchain-cluster-issuer.tfstate"
+    key     = "evm-toolchain-jenkins-agent-role-binding-dev.tfstate"
     profile = "evm-dev"
   }
 }
@@ -13,6 +13,6 @@ module "k8s" {
   env      = "dev"
   unit     = "evm"
   code     = "toolchain"
-  feature  = "cluster-issuer"
-  manifest = file("cluster-issuer.yaml")
+  feature  = "jenkins-agent-role-binding"
+  manifest = file("service-account.yaml")
 }

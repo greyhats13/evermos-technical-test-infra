@@ -23,8 +23,8 @@ module "k8s_cluster" {
   version_prefix = "1.21."
   node_type      = "s-2vcpu-2gb"
   auto_scale     = true
-  min_nodes      = 2
-  max_nodes      = 4
+  min_nodes      = 3
+  max_nodes      = 6
   node_labels = {
     service  = "backend"
     priority = "high"

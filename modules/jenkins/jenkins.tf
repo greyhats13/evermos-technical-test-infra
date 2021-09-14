@@ -1,5 +1,15 @@
+data "terraform_remote_state" "jenkins" {
+  backend = "s3"
+  config = {
+    bucket  = "greyhats13-tfstate"
+    key     = "${var.unit}-toolchain-jenkins.tfstate"
+    region  = "ap-southeast-1"
+    profile = "${var.unit}-${var.env}"
+  }
+}
+
 provider "jenkins" {
-  server_url = "https://jenkins.toolchain.dev.blast.co.id"
+  server_url = "https://${data.terraform_remote_state.jenkins.outputs.jenkins_cloudflare_endpoint}"
   username   = var.jenkins_secrets["username"]
   password   = var.jenkins_secrets["password"]
 }

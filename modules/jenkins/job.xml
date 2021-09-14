@@ -15,7 +15,7 @@
       <branchExcludeFilter></branchExcludeFilter>
       <additionalParameters>
         <org.jenkinsci.plugins.workflow.multibranch.AdditionalParameter>
-          <name>GET_TRIGGER</name>
+          <name>GET_ENV</name>
           <value>{{ .Parameters.env }}</value>
         </org.jenkinsci.plugins.workflow.multibranch.AdditionalParameter>
       </additionalParameters>

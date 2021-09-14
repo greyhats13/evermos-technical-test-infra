@@ -12,7 +12,7 @@ variable "code" {
 }
 
 variable "feature" {
-  default = "api"
+  default = "test"
 }
 #cloudflare
 variable "type" {

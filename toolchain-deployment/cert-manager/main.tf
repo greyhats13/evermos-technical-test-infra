@@ -2,7 +2,7 @@ terraform {
   backend "s3" {
     bucket  = "greyhats13-tfstate"
     region  = "ap-southeast-1"
-    key     = "evm-toolchain-cert-manager-dev.tfstate"
+    key     = "evm-toolchain-cert-manager.tfstate"
     profile = "evm-dev"
   }
 }

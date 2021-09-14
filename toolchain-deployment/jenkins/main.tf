@@ -2,7 +2,7 @@ terraform {
   backend "s3" {
     bucket  = "greyhats13-tfstate"
     region  = "ap-southeast-1"
-    key     = "evm-toolchain-jenkins-dev.tfstate"
+    key     = "evm-toolchain-jenkins.tfstate"
     profile = "evm-dev"
   }
 }
