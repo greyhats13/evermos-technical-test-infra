@@ -380,4 +380,22 @@ Most of data layer deployment need persistency such as Redis, MySQL, MongoDB, El
 # Terraform CI/CD with Atlantis:
 Configuring Terraform to automatically plan and apply after delivery team (developer) request for new services as belows.
 1. The delivery create service deployment from Terraform code example and adjust with their service name and specification.
-2. Delivery team then will 
+2. Delivery team then will perform Pull Request to DevOps team.
+3. Atlantis plan will automatically run, and provide the plan on Github comment section.
+4. After DevOps approved the Pull Request, Delivery team can perform "atlantis apply" on the comment section.
+
+Sample atlantis configuration and Apply Requirement:
+```yaml
+version: 3
+projects:
+  - dir: service-deployment/evm-core-api
+    apply_requirements: ["approved","mergeable"]
+    autoplan:
+      when_modified: ["*.tf*"]
+      enabled: true
+  - dir: service_deployment/evm-core-test
+    apply_requirements: ["approved","mergeable"]
+    autoplan:
+      when_modified: ["*.tf*"]
+      enabled: true
+```
