@@ -1,11 +1,8 @@
 # References:
-1. Terraform : https://github.com/greyhats13/evm-do-infra
+1. Terraform : https://github.com/greyhats13/evermos-technical-test-infra
 2. Sample service deployment:
-- https://github.com/greyhats13/evm-do-infra -> https://api.core.dev.blast.co.id/ (Flask Rest)
+2. Sample service deployment with Dockerfile, Jenkinsfile, and Helm from public Repo:
   ref: Public Repo: https://github.com/banyucenter/belajarflask.git
-
-- https://github.com/greyhats13/evm-core-test -> https://test.core.dev.blast.co.id/ (Go Rest)
-  no ref, I code myself.
 
 
 # Evermos Terraform : Everything as a Code
